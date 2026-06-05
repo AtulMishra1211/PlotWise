@@ -1,24 +1,67 @@
 import Header from "./Header";
 import { useState, useRef } from "react";
 import checkValidData from "../utils/validation.js";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../utils/firebase.js";
 
 const Login = () => {
 
   const email = useRef(null);
   const password = useRef(null);
 
+  const [isSignInForm, setIsSignInForm] = useState(true);
+  const[errorMessage, setErrorMessage] = useState(null);
 
-    const [isSignInForm, setIsSignInForm] = useState(true);
-    const[errorMessage, setErrorMessage] = useState(null);
-
-    const toggleSignInForm = () =>{
+  const toggleSignInForm = () =>{
       setIsSignInForm(!isSignInForm);
-    }
+  }
 
     const handleButtonClick = () =>{
      //validation logic
       const message = checkValidData(email.current.value, password.current.value);
       setErrorMessage(message);
+
+      if(message) return;  // means that if there is any error, there will be message so return directly, because first needed to be validated
+      
+      //now moving ahead with firebase authentication
+      // we will check firebase docs and see what we can do
+      // now if isSignInForm is false(means not signed in), then we will create user with email and password, otherwise we will sign in with email and password
+      if(!isSignInForm){
+
+          createUserWithEmailAndPassword(auth, email.current.value, password.current.value)
+            .then((userCredential) => {
+             // Signed up 
+           const user = userCredential.user;
+           console.log(user);
+              // ...
+            })
+             .catch((error) => {
+             const errorCode = error.code;
+             const errorMessage = error.message;
+             setErrorMessage(errorCode + " " + errorMessage);
+  
+         });
+
+
+      }
+      else{
+
+          signInWithEmailAndPassword(auth, email.current.value, password.current.value)
+             .then((userCredential) => { 
+              const user = userCredential.user;
+
+                console.log(user);
+               
+            })
+             .catch((error) => {
+                const errorCode = error.code;
+                const errorMessage = error.message;
+                setErrorMessage(errorCode + "-" + errorMessage)
+              });
+
+      }
+
+
     };
 
     

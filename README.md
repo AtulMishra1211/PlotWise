@@ -5,4 +5,7 @@
 -login form
 -sign up form
 
+
 -- form validation and UseRef Hook
+-set up firebase
+-deploy project
