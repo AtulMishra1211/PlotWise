@@ -3,13 +3,12 @@ import { useState, useRef } from "react";
 import checkValidData from "../utils/validation.js";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { auth } from "../utils/firebase.js";
-import {useNavigate} from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { addUser } from "../utils/userSlice.js";
+import { AVATAR } from "../utils/constants.js";
 
 const Login = () => {
 
-  const navigate = useNavigate();
   const dispatch = useDispatch();
   
   const name = useRef(null);
@@ -42,7 +41,7 @@ const Login = () => {
            const user = userCredential.user;
            console.log(user);
            updateProfile(user, {
-              displayName: name.current.value, photoURL: "https://avatars.githubusercontent.com/u/119334585?v=4"
+              displayName: name.current.value, photoURL: AVATAR
           }).then(() => {
             // Profile updated!
 
@@ -52,7 +51,6 @@ const Login = () => {
                uid: uid, email:email, displayName: displayName, photoURL: photoURL
               }));
 
-             navigate("/browse");
   // ...
 }).catch((error) => {
   // An error occurred
@@ -79,8 +77,6 @@ const Login = () => {
              .then((userCredential) => { 
               const user = userCredential.user;
 
-                console.log(user);
-               navigate("/browse");
             })
              .catch((error) => {
                 const errorCode = error.code;
