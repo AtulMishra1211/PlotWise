@@ -1,14 +1,18 @@
 import Header from "./Header";
 import { useState, useRef } from "react";
 import checkValidData from "../utils/validation.js";
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { auth } from "../utils/firebase.js";
 import {useNavigate} from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { addUser } from "../utils/userSlice.js";
 
 const Login = () => {
 
   const navigate = useNavigate();
-
+  const dispatch = useDispatch();
+  
+  const name = useRef(null);
   const email = useRef(null);
   const password = useRef(null);
 
@@ -37,7 +41,27 @@ const Login = () => {
              // Signed up 
            const user = userCredential.user;
            console.log(user);
-           navigate("/browse");
+           updateProfile(user, {
+              displayName: name.current.value, photoURL: "https://avatars.githubusercontent.com/u/119334585?v=4"
+          }).then(() => {
+            // Profile updated!
+
+            const {uid, email, displayName, photoURL} = auth.currentUser;  //auth is coming from get auth function... auth.currentUser will give us updated value of user
+            
+            dispatch(addUser({
+               uid: uid, email:email, displayName: displayName, photoURL: photoURL
+              }));
+
+             navigate("/browse");
+  // ...
+}).catch((error) => {
+  // An error occurred
+  // ...
+  setErrorMessage(error.message)
+});
+
+
+
               // ...
             })
              .catch((error) => {
@@ -83,6 +107,7 @@ const Login = () => {
 
         {!isSignInForm && (
          <input
+         ref = {name}
         type ="text"
         placeholder="Name"
         className="bg-gray-700 w-full p-4 my-4"/>
